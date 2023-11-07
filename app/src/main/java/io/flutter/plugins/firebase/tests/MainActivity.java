@@ -3,9 +3,12 @@ package io.flutter.plugins.firebase.tests;
 import android.os.Bundle;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.storage.FirebaseStorage;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.View;
 
 import androidx.core.view.WindowCompat;
@@ -20,15 +23,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
-
+    private final String TAG = "YYYYYYYYY";
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
+        FirebaseApp.initializeApp(this);
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
@@ -40,9 +43,18 @@ public class MainActivity extends AppCompatActivity {
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAnchorView(R.id.fab)
-                        .setAction("Action", null).show();
+                FirebaseApp app = FirebaseApp.getInstance();
+//                FirebaseStorage storage = FirebaseStorage.getInstance(app, "gs://flutterfire-e2e-tests-two");
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+                storage.useEmulator("10.0.2.2", 9199);
+                Log.d(TAG, "onClick: ");
+                storage.getReference().child("flutter-tests").child("foo.txt").putBytes(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0}).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "Success");
+                    } else {
+                        Log.d(TAG, "Failure");
+                    }
+                });
             }
         });
     }
